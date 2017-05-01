@@ -34,12 +34,11 @@ object MoviesRestClient {
         if (response.status != 200) {
           println(s"Received unexpected status ${response.status} : ${response.body}")
         }
-        println(s"Got a response $body")
-        val bod: JsValue = Json.parse(body)
-        val adult = (bod \ "adult").as[Boolean]
-        val title = (bod \ "original_title").as[String]
-        val iss = if(adult) " is " else " isn't "
-        println(title + iss + "movie for adults")
+
+        implicit val movieReads = Json.reads[Movie]
+        val fetchedMovie = movieReads.reads(Json.parse(body)).get
+        println(fetchedMovie)
+
     }
   }
 }
