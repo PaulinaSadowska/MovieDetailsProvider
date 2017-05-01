@@ -15,6 +15,7 @@ case class Movie(
                   revenue: Int,
                   runtime: Int,
                   vote_average: Double,
-                  vote_count: Int
+                  vote_count: Int,
+                  credits: Credits
                 ) {
 }
