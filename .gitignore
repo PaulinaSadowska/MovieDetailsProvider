@@ -27,3 +27,4 @@ project/plugins/project/
 .ensime
 .idea/
 data/links.csv
+src/main/resources/application.conf
