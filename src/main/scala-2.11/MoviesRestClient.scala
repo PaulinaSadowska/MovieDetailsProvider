@@ -1,6 +1,7 @@
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
+import data.{Genre, Movie}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSClient
@@ -12,8 +13,6 @@ import scala.concurrent.Future
   * Created by Paulina Sadowska on 01.05.2017.
   */
 object MoviesRestClient {
-
-  case class Movie(adult: Boolean, budget: Int)
 
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem()
@@ -34,7 +33,7 @@ object MoviesRestClient {
         if (response.status != 200) {
           println(s"Received unexpected status ${response.status} : ${response.body}")
         }
-
+        implicit val genreReads = Json.reads[Genre]
         implicit val movieReads = Json.reads[Movie]
         val fetchedMovie = movieReads.reads(Json.parse(body)).get
         println(fetchedMovie)
