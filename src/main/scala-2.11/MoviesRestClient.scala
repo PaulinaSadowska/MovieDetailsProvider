@@ -7,10 +7,10 @@ import data.{JsonParser, Movie}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSClient
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
 
 /**
@@ -27,25 +27,29 @@ object MoviesRestClient {
 
     val wsClient = AhcWSClient()
     val apiKey = ConfigFactory.load().getString(API_KEY_PATH)
-    val moviesIds = DataLoader.loadMoviesIds()
-    val movieId = moviesIds.get(1)
+    val movieIds = DataLoader.loadMoviesIds()
+    val movieId = movieIds.get(1)
     val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(movieId.get, apiKey)
 
-    fetchMovies(wsClient, moviesIds, apiKey)
-    
+    val movies = fetchMovies(wsClient, movieIds, apiKey)
+
     wsClient.close()
     system.terminate()
+
+    println("\nmovies fetched " + movies.length)
+    println("movies ids on the list " + movieIds.size)
   }
 
-  def fetchMovies(wsClient: WSClient, movieIds: Map[Int, Int], apiKey: String) = {
+  def fetchMovies(wsClient: WSClient, movieIds: Map[Int, Int], apiKey: String): ListBuffer[Movie] = {
+    val movies = new ListBuffer[Movie]()
     for (ids <- movieIds) {
       val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(ids._2, apiKey)
-      Await.ready(call(wsClient, movieDetailsUrl), atMost = 10.second)
-        .onComplete ({
-        case Success(movie) => println(movie)
-        case Failure(error) => println("An error has occured: " + error.getMessage)
-      })
+      retry(3)(
+        movies += Await.result(call(wsClient, movieDetailsUrl), atMost = 10.second)
+      )
+      print(". ")
     }
+    movies
   }
 
   def call(wsClient: WSClient, movieDetailsUrl: String): Future[Movie] = {
@@ -54,14 +58,31 @@ object MoviesRestClient {
         val body: String = response.body
         if (response.status != 200) {
           if (response.status == 429) {
-            val timeToSleep = response.allHeaders("Retry-After").last.toInt
-            println("waited for " + timeToSleep + " seconds")
+            val timeToSleep = response.allHeaders("Retry-After").last.toInt + 1
+            println("wait for " + timeToSleep + " seconds")
             Thread.sleep(1000 * timeToSleep)
           }
           throw new Exception(s"Received unexpected status ${response.status} : ${response.body}")
         }
-        JsonParser.toMovie(body)
+        else {
+          JsonParser.toMovie(body)
+        }
     }
   }
+
+  // Returning T, throwing the exception on failure
+  @annotation.tailrec
+  def retry[T](n: Int)(fn: => T): T = {
+    Try {
+      fn
+    } match {
+      case Success(x) => x
+      case _ if n > 1 =>
+        println("retry")
+        retry(n - 1)(fn)
+      case Failure(e) => throw e
+    }
+  }
+
 
 }
