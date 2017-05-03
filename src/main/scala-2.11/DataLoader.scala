@@ -1,4 +1,3 @@
-import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 /**
@@ -6,14 +5,21 @@ import scala.io.Source
   */
 object DataLoader {
 
-  def loadMoviesIds(): ArrayBuffer[Array[String]] = {
-    val rows = ArrayBuffer[Array[String]]()
-    using(Source.fromFile("/data/links.csv")) { source =>
-      for (line <- source.getLines) {
-        rows += line.split(",").map(_.trim)
-      }
+  private val DATA_PATH = "data/links.csv"
+  val SEPARATOR: String = ","
+
+  def loadMoviesIds(): Map[Int, Int] = {
+    using(Source.fromFile(DATA_PATH)) {
+      _.getLines
+        .drop(1) //ignore first line (headers)
+        .filter(_.split(SEPARATOR).length > 2) //ignore lines without theMovieDbId
+        .map {
+        line =>
+          val fields = line.split(SEPARATOR)
+          // format: (movieId, imdbId(ignored), theMovieDbId
+          (fields(0).toInt, fields(2).toInt)
+      }.toMap
     }
-    rows
   }
 
   private def using[A <: {def close() : Unit}, B](resource: A)(f: A => B): B =
