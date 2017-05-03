@@ -5,7 +5,7 @@ import scala.io.Source
   */
 object DataLoader {
 
-  private val DATA_PATH = "data/links.csv"
+  private val DATA_PATH = "data/links_small.csv"
   val SEPARATOR: String = ","
 
   def loadMoviesIds(): Map[Int, Int] = {
