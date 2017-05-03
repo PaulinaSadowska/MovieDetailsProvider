@@ -28,8 +28,6 @@ object MoviesRestClient {
     val wsClient = AhcWSClient()
     val apiKey = ConfigFactory.load().getString(API_KEY_PATH)
     val movieIds = DataLoader.loadMoviesIds()
-    val movieId = movieIds.get(1)
-    val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(movieId.get, apiKey)
 
     val movies = fetchMovies(wsClient, movieIds, apiKey)
 
