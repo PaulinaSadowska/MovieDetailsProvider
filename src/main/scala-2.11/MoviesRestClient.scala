@@ -1,13 +1,13 @@
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
-import data.{Genre, Movie, JsonParser}
-import play.api.libs.json._
+import data.{JsonParser, Movie}
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSClient
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
   * Created by Paulina Sadowska on 01.05.2017.
@@ -29,18 +29,20 @@ object MoviesRestClient {
     call(wsClient, movieDetailsUrl)
       .andThen { case _ => wsClient.close() }
       .andThen { case _ => system.terminate() }
+      .onComplete({
+        case Success(movie) => println(movie)
+        case Failure(error) => println("An error has occured: " + error.getMessage)
+      })
   }
 
-  def call(wsClient: WSClient, movieDetailsUrl: String): Future[Unit] = {
+  def call(wsClient: WSClient, movieDetailsUrl: String): Future[Movie] = {
     wsClient.url(movieDetailsUrl).get().map {
       response =>
         val body: String = response.body
         if (response.status != 200) {
-          println(s"Received unexpected status ${response.status} : ${response.body}")
+          throw new Exception(s"Received unexpected status ${response.status} : ${response.body}")
         }
-        val fetchedMovie = JsonParser.toMovie(body)
-        println(fetchedMovie)
-
+        JsonParser.toMovie(body)
     }
   }
 }

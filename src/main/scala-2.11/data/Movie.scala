@@ -1,7 +1,5 @@
 package data
 
-import play.api.libs.json.{Format, JsArray, Json}
-
 /**
   * Created by Paulina Sadowska on 01.05.2017.
   */
