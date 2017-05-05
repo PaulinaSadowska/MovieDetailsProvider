@@ -35,10 +35,22 @@ case class Movie(
   }
 
   def findCrewByJob(credits: Credits, job: String): Int = {
-    credits.crew.filter(_.job == job).head.id
+    val foundCrew = credits.crew.filter(_.job == job)
+    if (foundCrew.nonEmpty) {
+      foundCrew.head.id
+    }
+    else {
+      -1
+    }
   }
 
   def findActorIdByOrder(credits: Credits, order: Int) = {
-    credits.cast.filter(_.order == order).head.id
+    val foundCast = credits.cast.filter(_.order == order)
+    if (foundCast.nonEmpty) {
+      foundCast.head.id
+    }
+    else {
+      -1
+    }
   }
 }
