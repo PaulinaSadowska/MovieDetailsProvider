@@ -3,7 +3,7 @@ import scala.io.Source
 /**
   * Created by Paulina Sadowska on 03.05.2017.
   */
-object DataLoader {
+object FileLoader {
 
   private val DATA_PATH = "data/links_small.csv"
   val SEPARATOR: String = ","
