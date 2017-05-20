@@ -2,7 +2,7 @@ import scala.concurrent.{Await, Future}
 
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
-import slick.driver.H2Driver.api._
+import slick.driver.SQLiteDriver.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -13,7 +13,7 @@ object MoviesDbDemo {
 
   def main(args: Array[String]): Unit = {
 
-    val db = Database.forConfig("h2mem1")
+    val db = Database.forConfig("sqlite")
     try {
 
       // The query interface for the Movies table
@@ -22,7 +22,7 @@ object MoviesDbDemo {
       val setupAction: DBIO[Unit] = DBIO.seq(
         // Create the schema by combining the DDLs for the Movie
         // table using the query interfaces
-        moviesTable.schema.create,
+       // moviesTable.schema.create,
 
         // Insert some suppliers
         moviesTable += (101, false, "en")
@@ -32,7 +32,7 @@ object MoviesDbDemo {
       val f = setupFuture.flatMap { _ =>
         // Insert some coffees (using JDBC's batch insert feature)
         val insertAction: DBIO[Option[Int]] = moviesTable ++= Seq(
-          (102, false, "gb"),
+          (103, false, "gb"),
           (105, true, "pl")
         )
 

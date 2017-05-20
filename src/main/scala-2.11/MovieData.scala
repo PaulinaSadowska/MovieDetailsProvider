@@ -4,7 +4,7 @@ import slick.lifted.{ProvenShape, ForeignKeyQuery}
 
 // A Suppliers table with 6 columns: id, name, street, city, state, zip
 class MovieData(tag: Tag)
-  extends Table[(Int, Boolean, String)](tag, "Movie") {
+  extends Table[(Int, Boolean, String)](tag, "Movies") {
 
   // This is the primary key column:
   def id: Rep[Int] = column[Int]("movie_id", O.PrimaryKey)
