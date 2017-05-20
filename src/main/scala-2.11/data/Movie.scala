@@ -31,7 +31,7 @@ case class Movie(
   }
 
   def getReleaseYear(release_date: String) = {
-    release_date.split("-")(0)
+    release_date.split("-")(0).toInt
   }
 
   def findCrewByJob(credits: Credits, job: String): Int = {

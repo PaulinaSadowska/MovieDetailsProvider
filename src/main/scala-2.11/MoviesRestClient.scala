@@ -4,6 +4,13 @@ import com.typesafe.config.ConfigFactory
 import network.ApiHelper
 import play.api.libs.ws.ahc.AhcWSClient
 
+import scala.concurrent.{Future, Await}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import slick.backend.DatabasePublisher
+import slick.driver.H2Driver.api._
+
+
 /**
   * Created by Paulina Sadowska on 01.05.2017.
   */
@@ -26,6 +33,7 @@ object MoviesRestClient {
 
     println("\nmovies fetched " + movies.length)
     println("movies ids on the list " + movieIds.size)
+
   }
 
 }
