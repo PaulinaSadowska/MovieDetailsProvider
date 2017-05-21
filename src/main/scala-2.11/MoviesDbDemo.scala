@@ -25,15 +25,15 @@ object MoviesDbDemo {
        // moviesTable.schema.create,
 
         // Insert some suppliers
-        moviesTable += (101, false, "en")
+        moviesTable += (108, false, 1, "en", 2.33, 3, 96, 7.88, 234, 1992, 22, 12,122, "action")
       )
       val setupFuture: Future[Unit] = db.run(setupAction)
 
       val f = setupFuture.flatMap { _ =>
         // Insert some coffees (using JDBC's batch insert feature)
         val insertAction: DBIO[Option[Int]] = moviesTable ++= Seq(
-          (103, false, "gb"),
-          (105, true, "pl")
+          (109, true, 111, "pl", 2.33, 3, 96, 7.88, 234, 1993, 22, 12,122, "horror"),
+          (101, false, 1, "de", 2.33, 3, 96, 7.88, 234, 1998, 22, 12,122, "comedy")
         )
 
         val insertAndPrintAction: DBIO[Unit] = insertAction.map { insertResult =>
@@ -43,13 +43,16 @@ object MoviesDbDemo {
           }
         }
 
-        val allMoviesAction: DBIO[Seq[(Int, Boolean, String)]] =
+        val allMoviesAction: DBIO[Seq[(Int, Boolean, Int, String, Double, Int,
+          Int, Double, Int, Int, Int, Int, Int, String)]] =
           moviesTable.result
 
-        val combinedAction: DBIO[Seq[(Int, Boolean, String)]] =
+        val combinedAction: DBIO[Seq[(Int, Boolean, Int, String, Double, Int,
+          Int, Double, Int, Int, Int, Int, Int, String)]] =
           insertAndPrintAction >> allMoviesAction
 
-        val combinedFuture: Future[Seq[(Int, Boolean, String)]] =
+        val combinedFuture: Future[Seq[(Int, Boolean, Int, String, Double, Int,
+          Int, Double, Int, Int, Int, Int, Int, String)]] =
           db.run(combinedAction)
 
         combinedFuture.map { allMovies =>
@@ -59,7 +62,8 @@ object MoviesDbDemo {
           /* Filtering / Where */
 
           // Construct a query where the price of Coffees is > 9.0
-          val filterQuery: Query[MovieData, (Int, Boolean, String), Seq] =
+          val filterQuery: Query[MovieData, (Int, Boolean, Int, String, Double, Int,
+            Int, Double, Int, Int, Int, Int, Int, String), Seq] =
             moviesTable.filter(_.id > 101)
 
           // Print the SQL for the filter query
