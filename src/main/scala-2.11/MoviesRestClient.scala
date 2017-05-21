@@ -30,19 +30,25 @@ object MoviesRestClient {
     val movieIds = allMovieIds.take(1)
     val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
     val db = Database.forConfig("sqlite")
-    val m = movies.head
     try {
       // The query interface for the Movies table
       val moviesTable = TableQuery[MovieData]
+      val m = movies.head
 
-      val addMoviesAction: DBIO[Unit] = DBIO.seq(
-        moviesTable += (m.id, m.adult, m.budget, m.original_language,
-          m.popularity, m.revenue, m.runtime, m.vote_average,
-          m.vote_count, m.releaseYear, m.directorId, m.firstActorId,
-          m.secondActorId, m.genreIds)
+      val deleteMoviesAction: DBIO[Unit] = DBIO.seq(
+        moviesTable.delete
       )
-      val addMovieFuture: Future[Unit] = db.run(addMoviesAction)
-      val f = addMovieFuture
+
+      val deleteMoviesFuture: Future[Unit] = db.run(deleteMoviesAction)
+      val f = deleteMoviesFuture.flatMap { _ =>
+        val addMoviesAction: DBIO[Unit] = DBIO.seq(
+          moviesTable += (m.id, m.adult, m.budget, m.original_language,
+            m.popularity, m.revenue, m.runtime, m.vote_average,
+            m.vote_count, m.releaseYear, m.directorId, m.firstActorId,
+            m.secondActorId, m.genreIds)
+        )
+        db.run(addMoviesAction)
+      }
       Await.result(f, Duration.Inf)
     } finally db.close
 
