@@ -38,6 +38,8 @@ object MoviesRestClient {
     val allMovieIds = FileLoader.loadMoviesIds()
 
     val db = Database.forConfig("sqlite")
+
+    //clean database
     try {
       // The query interface for the Movies table
       val moviesTable = TableQuery[MovieData]
@@ -45,24 +47,27 @@ object MoviesRestClient {
       val deleteMoviesAction: DBIO[Unit] = DBIO.seq(
         moviesTable.delete
       )
-
-      val movieIds = allMovieIds.take(2)
-      val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
-
-      var moviesSeq: Seq[(Int, Boolean, Int, String, Double, Int,
-        Int, Double, Int, Int, Int, Int, Int, String)] = Seq.empty
-      for (elem <- movies) {
-        moviesSeq :+= toMovieData(elem)
-      }
-      val addMoviesAction: DBIO[Option[Int]] = moviesTable ++= moviesSeq
       val deleteMoviesFuture: Future[Unit] = db.run(deleteMoviesAction)
-      val f = deleteMoviesFuture.flatMap { _ =>
-        db.run(addMoviesAction)
-      }
+      val f = deleteMoviesFuture
       Await.result(f, Duration.Inf)
-      println("\nmovies fetched " + movies.length)
-      println("movies ids on the list " + movieIds.size)
-    } finally db.close
+
+      for (i <- 2 to 20 by 2) {
+        val movieIds = allMovieIds.slice(i - 2, i)
+        val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
+        println("\nmovies fetched " + movies.length)
+
+        var moviesSeq: Seq[(Int, Boolean, Int, String, Double, Int,
+          Int, Double, Int, Int, Int, Int, Int, String)] = Seq.empty
+        for (elem <- movies) {
+          moviesSeq :+= toMovieData(elem)
+        }
+        val addMoviesAction: DBIO[Option[Int]] = moviesTable ++= moviesSeq
+        val addMoviesFuture: Future[Option[Int]] = db.run(addMoviesAction)
+        val f = addMoviesFuture
+        Await.result(f, Duration.Inf)
+      }
+    }
+    finally db.close
 
     wsClient.close()
     system.terminate()
