@@ -1,10 +1,11 @@
-import scala.concurrent.{Await, Future}
+package demo
 
-import scala.concurrent.{Future, Await}
-import scala.concurrent.duration.Duration
+import data.db.MovieData
 import slick.driver.SQLiteDriver.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 /**
   * Created by Paulina Sadowska on 20.05.2017.

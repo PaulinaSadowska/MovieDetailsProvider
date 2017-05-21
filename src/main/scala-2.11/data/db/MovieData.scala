@@ -1,3 +1,5 @@
+package data.db
+
 import slick.driver.H2Driver.api._
 import slick.lifted.ProvenShape
 
