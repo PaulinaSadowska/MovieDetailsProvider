@@ -19,15 +19,15 @@ case class Movie(
                 ) {
 
   val genreIds = getGenres(genres)
-  val releaseDate = getReleaseYear(release_date)
+  val releaseYear = getReleaseYear(release_date)
   val directorId = findCrewByJob(credits, "Director")
   val firstActorId = findActorIdByOrder(credits, 0)
   val secondActorId = findActorIdByOrder(credits, 1)
 
-  def getGenres(genres: Seq[Genre]): Seq[Int] = {
+  def getGenres(genres: Seq[Genre]): String = {
     genres.map({
       _.id
-    })
+    }) mkString ","
   }
 
   def getReleaseYear(release_date: String) = {

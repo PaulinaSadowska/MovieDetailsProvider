@@ -21,17 +21,12 @@ object MoviesDbDemo {
       val moviesTable = TableQuery[MovieData]
 
       val setupAction: DBIO[Unit] = DBIO.seq(
-        // Create the schema by combining the DDLs for the Movie
-        // table using the query interfaces
-       // moviesTable.schema.create,
-
-        // Insert some suppliers
         moviesTable += (108, false, 1, "en", 2.33, 3, 96, 7.88, 234, 1992, 22, 12,122, "action")
       )
       val setupFuture: Future[Unit] = db.run(setupAction)
 
       val f = setupFuture.flatMap { _ =>
-        // Insert some coffees (using JDBC's batch insert feature)
+        // Insert some movies (using JDBC's batch insert feature)
         val insertAction: DBIO[Option[Int]] = moviesTable ++= Seq(
           (109, true, 111, "pl", 2.33, 3, 96, 7.88, 234, 1993, 22, 12,122, "horror"),
           (101, false, 1, "de", 2.33, 3, 96, 7.88, 234, 1998, 22, 12,122, "comedy")

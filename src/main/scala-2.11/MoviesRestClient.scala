@@ -1,10 +1,11 @@
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
+import data.db.MovieData
 import network.ApiHelper
 import play.api.libs.ws.ahc.AhcWSClient
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import slick.backend.DatabasePublisher
@@ -24,9 +25,26 @@ object MoviesRestClient {
 
     val wsClient = AhcWSClient()
     val apiKey = ConfigFactory.load().getString(API_KEY_PATH)
-    val movieIds = FileLoader.loadMoviesIds()
+    val allMovieIds = FileLoader.loadMoviesIds()
 
+    val movieIds = allMovieIds.take(1)
     val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
+    val db = Database.forConfig("sqlite")
+    val m = movies.head
+    try {
+      // The query interface for the Movies table
+      val moviesTable = TableQuery[MovieData]
+
+      val addMoviesAction: DBIO[Unit] = DBIO.seq(
+        moviesTable += (m.id, m.adult, m.budget, m.original_language,
+          m.popularity, m.revenue, m.runtime, m.vote_average,
+          m.vote_count, m.releaseYear, m.directorId, m.firstActorId,
+          m.secondActorId, m.genreIds)
+      )
+      val addMovieFuture: Future[Unit] = db.run(addMoviesAction)
+      val f = addMovieFuture
+      Await.result(f, Duration.Inf)
+    } finally db.close
 
     wsClient.close()
     system.terminate()
