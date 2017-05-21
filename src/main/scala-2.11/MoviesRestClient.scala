@@ -22,6 +22,8 @@ object MoviesRestClient {
 
   private val API_KEY_PATH = "movieDb.apiKey"
 
+  private val DATA_SLICE_SIZE = 10
+
   def toMovieData(m: Movie) = {
     (m.id, m.adult, m.budget, m.original_language,
       m.popularity, m.revenue, m.runtime, m.vote_average,
@@ -51,8 +53,8 @@ object MoviesRestClient {
       val f = deleteMoviesFuture
       Await.result(f, Duration.Inf)
 
-      for (i <- 2 to 20 by 2) {
-        val movieIds = allMovieIds.slice(i - 2, i)
+      for (i <- DATA_SLICE_SIZE to allMovieIds.size + DATA_SLICE_SIZE - 1 by DATA_SLICE_SIZE) {
+        val movieIds = allMovieIds.slice(i - DATA_SLICE_SIZE, i)
         val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
         println("\nmovies fetched " + movies.length)
 
