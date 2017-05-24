@@ -21,15 +21,15 @@ object MoviesDbDemo {
       val moviesTable = TableQuery[MovieData]
 
       val setupAction: DBIO[Unit] = DBIO.seq(
-        moviesTable += (108, false, 1, "en", 2.33, 3, 96, 7.88, 234, 1992, 22, 12,122, "action")
+        moviesTable += (108, 11, false, 1, "en", 2.33, 3, 96, 7.88, 234, 1992, 22, 12,122, "action")
       )
       val setupFuture: Future[Unit] = db.run(setupAction)
 
       val f = setupFuture.flatMap { _ =>
         // Insert some movies (using JDBC's batch insert feature)
         val insertAction: DBIO[Option[Int]] = moviesTable ++= Seq(
-          (109, true, 111, "pl", 2.33, 3, 96, 7.88, 234, 1993, 22, 12,122, "horror"),
-          (101, false, 1, "de", 2.33, 3, 96, 7.88, 234, 1998, 22, 12,122, "comedy")
+          (109, 112, true, 111, "pl", 2.33, 3, 96, 7.88, 234, 1993, 22, 12,122, "horror"),
+          (101, 113, false, 1, "de", 2.33, 3, 96, 7.88, 234, 1998, 22, 12,122, "comedy")
         )
 
         val insertAndPrintAction: DBIO[Unit] = insertAction.map { insertResult =>
@@ -39,15 +39,15 @@ object MoviesDbDemo {
           }
         }
 
-        val allMoviesAction: DBIO[Seq[(Int, Boolean, Int, String, Double, Int,
+        val allMoviesAction: DBIO[Seq[(Int, Int, Boolean, Int, String, Double, Int,
           Int, Double, Int, Int, Int, Int, Int, String)]] =
           moviesTable.result
 
-        val combinedAction: DBIO[Seq[(Int, Boolean, Int, String, Double, Int,
+        val combinedAction: DBIO[Seq[(Int, Int, Boolean, Int, String, Double, Int,
           Int, Double, Int, Int, Int, Int, Int, String)]] =
           insertAndPrintAction >> allMoviesAction
 
-        val combinedFuture: Future[Seq[(Int, Boolean, Int, String, Double, Int,
+        val combinedFuture: Future[Seq[(Int, Int, Boolean, Int, String, Double, Int,
           Int, Double, Int, Int, Int, Int, Int, String)]] =
           db.run(combinedAction)
 
@@ -58,7 +58,7 @@ object MoviesDbDemo {
           /* Filtering / Where */
 
           // Construct a query where the price of Coffees is > 9.0
-          val filterQuery: Query[MovieData, (Int, Boolean, Int, String, Double, Int,
+          val filterQuery: Query[MovieData, (Int, Int, Boolean, Int, String, Double, Int,
             Int, Double, Int, Int, Int, Int, Int, String), Seq] =
             moviesTable.filter(_.id > 101)
 

@@ -6,11 +6,12 @@ import slick.lifted.ProvenShape
 
 // A Suppliers table with 6 columns: id, name, street, city, state, zip
 class MovieData(tag: Tag)
-  extends Table[(Int, Boolean, Int, String, Double, Int,
+  extends Table[(Int, Int, Boolean, Int, String, Double, Int,
     Int, Double, Int, Int, Int, Int, Int, String)](tag, "Movies") {
 
   // This is the primary key column:
   def id: Rep[Int] = column[Int]("movie_id", O.PrimaryKey)
+  def theMovieDbId: Rep[Int] = column[Int]("the_movie_db_id")
   def adult: Rep[Boolean] = column[Boolean]("adult")
   def budget: Rep[Int] = column[Int]("budget")
   def originalLanguage: Rep[String] = column[String]("original_language")
@@ -26,8 +27,8 @@ class MovieData(tag: Tag)
   def genres: Rep[String] = column[String]("genres")
 
   // Every table needs a * projection with the same type as the table's type parameter
-  def * : ProvenShape[(Int, Boolean, Int, String, Double, Int,
+  def * : ProvenShape[(Int, Int, Boolean, Int, String, Double, Int,
     Int, Double, Int, Int, Int, Int, Int, String)] =
-  (id, adult, budget, originalLanguage, popularity, revenue,
+  (id, theMovieDbId, adult, budget, originalLanguage, popularity, revenue,
     runtime, voteAverage, voteCount, AssAssAss, directorId, firstActorId, secondActorId, genres)
 }

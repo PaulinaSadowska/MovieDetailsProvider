@@ -16,13 +16,13 @@ class MovieDbApi(wsClient: WSClient) {
 
   private val MOVIE_DETAILS_URL_FORMAT = "https://api.themoviedb.org/3/movie/%s?api_key=%s&append_to_response=credits"
 
-  def fetchMovies(movieIds: Map[Int, Int], apiKey: String): List[Movie] = {
-    val movies = new ListBuffer[Movie]()
+  def fetchMovies(movieIds: Map[Int, Int], apiKey: String): Map[Int, Movie] = {
+    val movies = collection.mutable.Map.empty[Int, Movie]
     for (ids <- movieIds) {
       val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(ids._2, apiKey)
       try {
         retry(3)(
-          movies += Await.result(call(wsClient, movieDetailsUrl), atMost = 10.second)
+          movies += ids._1 -> Await.result(call(wsClient, movieDetailsUrl), atMost = 10.second)
         )
       }
       catch{
@@ -30,7 +30,7 @@ class MovieDbApi(wsClient: WSClient) {
       }
       print(". ")
     }
-    movies.toList
+    movies.toMap
   }
 
   private def call(wsClient: WSClient, movieDetailsUrl: String): Future[Movie] = {

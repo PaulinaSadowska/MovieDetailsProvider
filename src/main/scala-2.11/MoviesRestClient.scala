@@ -40,7 +40,7 @@ object MoviesRestClient {
       for (i <- DATA_SLICE_SIZE until allMovieIds.size + DATA_SLICE_SIZE by DATA_SLICE_SIZE) {
         val movieIds = allMovieIds.slice(i - DATA_SLICE_SIZE, i)
         val movies = new MovieDbApi(wsClient).fetchMovies(movieIds, apiKey)
-        println("\nmovies fetched " + movies.length)
+        println("\nmovies fetched " + movies.size)
         val addMoviesFuture: Future[Option[Int]] = db.run(dbActions.addMovies(movies))
         Await.result(addMoviesFuture, Duration.Inf)
       }
