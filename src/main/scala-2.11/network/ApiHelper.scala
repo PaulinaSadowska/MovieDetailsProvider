@@ -20,9 +20,14 @@ object ApiHelper {
     val movies = new ListBuffer[Movie]()
     for (ids <- movieIds) {
       val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(ids._2, apiKey)
-      retry(3)(
-        movies += Await.result(call(wsClient, movieDetailsUrl), atMost = 10.second)
-      )
+      try {
+        retry(3)(
+          movies += Await.result(call(wsClient, movieDetailsUrl), atMost = 10.second)
+        )
+      }
+      catch{
+        case e: Exception => println(e.getMessage)
+      }
       print(". ")
     }
     movies.toList
@@ -38,7 +43,7 @@ object ApiHelper {
             println("wait for " + timeToSleep + " seconds")
             Thread.sleep(1000 * timeToSleep)
           }
-          throw new Exception(s"Received unexpected status ${response.status} : ${response.body}")
+          throw new Exception(s"Received unexpected status ${response.status} : ${response.body} \n $movieDetailsUrl")
         }
         else {
           JsonParser.toMovie(body)
