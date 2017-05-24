@@ -2,7 +2,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import data.db.MovieData
-import network.ApiHelper
+import network.MovieDbApi
 import play.api.libs.ws.ahc.AhcWSClient
 import slick.driver.H2Driver.api._
 import slick.lifted.TableQuery
@@ -39,7 +39,7 @@ object MoviesRestClient {
       //fetch data
       for (i <- DATA_SLICE_SIZE until allMovieIds.size + DATA_SLICE_SIZE by DATA_SLICE_SIZE) {
         val movieIds = allMovieIds.slice(i - DATA_SLICE_SIZE, i)
-        val movies = ApiHelper.fetchMovies(wsClient, movieIds, apiKey)
+        val movies = new MovieDbApi(wsClient).fetchMovies(movieIds, apiKey)
         println("\nmovies fetched " + movies.length)
         val addMoviesFuture: Future[Option[Int]] = db.run(dbActions.addMovies(movies))
         Await.result(addMoviesFuture, Duration.Inf)

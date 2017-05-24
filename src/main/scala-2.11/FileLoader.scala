@@ -6,7 +6,7 @@ import scala.io.Source
 object FileLoader {
 
   private val DATA_PATH = "data/links_small.csv"
-  val SEPARATOR: String = ","
+  private val SEPARATOR: String = ","
 
   def loadMoviesIds(): Map[Int, Int] = {
     using(Source.fromFile(DATA_PATH)) {

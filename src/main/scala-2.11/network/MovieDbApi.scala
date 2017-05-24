@@ -12,11 +12,11 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by Paulina Sadowska on 05.05.2017.
   */
-object ApiHelper {
+class MovieDbApi(wsClient: WSClient) {
 
   private val MOVIE_DETAILS_URL_FORMAT = "https://api.themoviedb.org/3/movie/%s?api_key=%s&append_to_response=credits"
 
-  def fetchMovies(wsClient: WSClient, movieIds: Map[Int, Int], apiKey: String): List[Movie] = {
+  def fetchMovies(movieIds: Map[Int, Int], apiKey: String): List[Movie] = {
     val movies = new ListBuffer[Movie]()
     for (ids <- movieIds) {
       val movieDetailsUrl = MOVIE_DETAILS_URL_FORMAT.format(ids._2, apiKey)
